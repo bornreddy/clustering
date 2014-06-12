@@ -34,13 +34,18 @@ def kmeans(image, k):
           min_distance = distance
           right_cluster = c
       clusters[right_cluster].append((x,y))
+  #now i have to recompute centroids - only one attribute to consider:
+  for c in clusters.keys():
+    
   change_colors(clusters, image)
  
+
+#handle this with an arbitray number of k. as in, have more tuples available in each palette or randomly create them in this algorithm. 
 def change_colors(dict, image):
   image = image.convert("RGB")
   color_index = 0
   for x in dict.keys():
-    color = cl.list[color_index]
+    color = cl.neon[color_index]
     for y in dict[x]:
       image.putpixel(y, color)
     color_index += 1
