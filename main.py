@@ -11,5 +11,3 @@ try:
   kmeans.histogramify(img)
 except IOError:
   print "Unable to read file. Check spelling or try another format."
-
-
