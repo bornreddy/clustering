@@ -1,6 +1,7 @@
 import kmeans
 from PIL import Image
 import os, sys
+import color
 
 file_name = sys.argv[1]
 try:
@@ -8,6 +9,6 @@ try:
   img.load()
   img = img.convert('L')
   img.show()
-  kmeans.histogramify(img)
+  kmeans.kmeans(img,4)
 except IOError:
   print "Unable to read file. Check spelling or try another format."
