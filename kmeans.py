@@ -3,6 +3,8 @@ from PIL import Image
 import random
 import color as cl
 
+'''refactor to extract variables. picture and type of color wanted '''
+
 #must take in a grayscale image
 def histogramify(image):
   intensity_array = []
@@ -16,19 +18,17 @@ def histogramify(image):
 
 def kmeans(image, k):
   #set up dictionary with random centroids
-  print k
+  #print k
   random_centroids = random.sample(range(0,255), k)
   print random_centroids
   clusters = {}
   for c in random_centroids:
     clusters[c] = []
   #got through pixels and assign to the right clusters as tuples
-  
   for x in range(0,image.size[0]):
     for y in range(0,image.size[1]):
       min_distance = 250000000
-      intensity = image.getpixel((x,y))
-     # print intensity
+       = image.getpixel((x,y))
       for c in random_centroids:
         distance = abs(c-intensity)
         if distance < min_distance:
@@ -42,10 +42,10 @@ def kmeans(image, k):
   #reassign pixels and check for cross-cluster movement
   changed = True
   while changed == True:
-#    print "recomputing center"
     changed, clusters = reassign(clusters, image)
   change_colors(clusters, image)
- 
+  return clusters
+
 
 def reassign(dict, image):
 #  print "inside reassign function"
@@ -68,6 +68,7 @@ def average_intensity_given_tuples(list_tup, image):
     sum += image.getpixel(list_tup[x])
   return sum/len(list_tup)
 
+
 def least_diff(intensity, keys):
   min_distance = abs(keys[0] - intensity)
   closest_key = keys[0]
@@ -84,16 +85,24 @@ def change_colors(dict, image):
   image = image.convert("RGB")
   color_index = 0
   for x in dict.keys():
-    color = cl.neon[color_index]
+    color = cl.bwry[color_index]
     for y in dict[x]:
       image.putpixel(y, color)
     color_index += 1
   image.show()
 
-
-img = Image.open("images/tiger.jpg")
-img.load()
-img = img.convert('L')
-kmeans(img, 4)
-
-
+def cluster_originals(color_img,clusters):
+  data = []
+  for x in clusters.keys():
+    for y in clusters[x]:
+      r,g,b = color_img.getpixel((y[0],y[1]))
+      data.append((r,g,b))
+  color_img.putdata(data)
+  color_img.show()
+      
+color_img = Image.open("images/kidney.jpg")
+color_img.show()
+color_img.load()
+img = color_img.convert('L')
+clusters = kmeans(img,4)
+cluster_originals(color_img, clusters)
