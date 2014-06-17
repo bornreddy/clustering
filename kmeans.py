@@ -28,7 +28,7 @@ def kmeans(image, k):
   for x in range(0,image.size[0]):
     for y in range(0,image.size[1]):
       min_distance = 250000000
-       = image.getpixel((x,y))
+      intensity = image.getpixel((x,y))
       for c in random_centroids:
         distance = abs(c-intensity)
         if distance < min_distance:
@@ -100,7 +100,7 @@ def cluster_originals(color_img,clusters):
   color_img.putdata(data)
   color_img.show()
       
-color_img = Image.open("images/kidney.jpg")
+color_img = Image.open("images/small.jpg")
 color_img.show()
 color_img.load()
 img = color_img.convert('L')
