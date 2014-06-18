@@ -3,6 +3,7 @@ from PIL import Image
 import random
 import color as cl
 import os, sys
+import datetime 
 
 '''return x unique random rgb tuples as a list'''
 def random_rgb(x):
@@ -21,40 +22,94 @@ def color_distance(rgb1,rgb2):
   d = ((r2-r1)*0.3)**2 + ((g2-g1)*0.59)**2 + ((b2-b1)*0.11)**2
   return d
 
-
-'''FIX'''
-'''intially, given the list of pixel location data and a the random centroids, assign the pixels to the closest centroids.'''
 def initial_assign(centroids, img):
   clusters = {}
   for c in centroids:
     clusters[c] = []
-  total_pix = img.size[0] * img.size[1]
-  
-  for x in total_pix:
-    min_distance = 50,000,000
-    right_cluster = centroids[0]
-    pix_color = img.getpixel((pixel_list[x][0], pixel_list[x][1]))
-    for y in centroids:
-      distance = color_distance(pix_color, centroids[y])
-      if distance < min_distance:
-        min_distance = distance
-        right_cluster = centroids[y]
-    clusters[right_cluster].append(pixel_list[x])
+  for x in range(0,img.size[0]):
+    for y in range(0,img.size[1]):
+      color = img.getpixel((x,y))
+      minDistance = 50000000
+      right_center = tuple()
+      for c in centroids:
+        distance = color_distance(color,c)
+        if (distance < minDistance):
+          minDistance = distance
+          right_center = c
+      '''add location of each pixel to the correct random centroid'''
+      clusters[right_center].append((x,y))
+  return clusters 
+
+'''given a list of clusters and an image, compute the average color of each cluster and make that the new centroid; then change the pixels to fit their new clusters; return the new clusters and whether or not any single pixels have changed'''
+def recompute_reassign(clusters, img):
+  changed = False
+  for c in clusters.keys():
+    r, g, b = 0, 0, 0
+    num = len(clusters[c])
+    if num == 0:
+      continue
+    for x in clusters[c]:
+      p = img.getpixel((x[0],x[1]))
+      r += p[0]
+      g += p[1]
+      b += p[2]
+    r /= num
+    g /= num
+    b /= num
+    clusters[(r,g,b)] = clusters.pop(c)
+  '''reassign part here'''
+  for c in clusters.keys():
+    right_center = tuple()
+    for p in clusters[c]:
+      minDistance = 50000000
+      for l in clusters.keys():
+        distance = color_distance(l, img.getpixel((p[0],p[1])))
+        if (distance < minDistance):
+          minDistance = distance
+          right_center = l
+    if c != right_center:
+      changed = True
+      clusters[c].remove(p)
+      clusters[l].append(p)
+  return changed,clusters  
+
+def kmeans(k, img):
+  centroids = random_rgb(k)
+  print "got here"
+  clusters = initial_assign(centroids,img)
+  changed = True
+  while changed == True:
+    changed, clusters = recompute_reassign(clusters,img)
   return clusters
-  
-    
- 
-  
-     
-  
 
+def change_colors(dict,img):
+  img = img.convert('RGB')
+  color_index = 0
+  print cl.bwry
+  print dict.keys()
+  for x in dict.keys():
+    color = cl.bwry[color_index]
+    for y in dict[x]:
+      img.putpixel(y,color)
+    color_index += 1
+  img.show()
 
-
-
+def print_pretty_dict(dict):
+  for x in dict.keys():
+    print x,": "
+    for c in dict[x]:
+      print c
+           
 def main():
-  #print random_rgb(2)
-  #print color_distance((255,255,255),(0,0,0))
-  print initial_assign(
+  img = Image.open("images/tiger.jpg")
+  a = datetime.datetime.now()
+  clusters = kmeans(2,img)
+  b = datetime.datetime.now()
+  print "kmeans time: ", b-a
+  c = datetime.datetime.now()
+  change_colors(clusters, img)
+  d = datetime.datetime.now()
+  print "change_color time: ", d-c
   '''
   img = Image.open(sys.argv[1])
   img.show()

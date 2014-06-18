@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 import random
 import color as cl
-
+from datetime import datetime
 '''refactor to extract variables. picture and type of color wanted '''
 
 #must take in a grayscale image
@@ -106,3 +106,10 @@ def cluster_originals(color_img,clusters):
 #img = color_img.convert('L')
 #clusters = kmeans(img,4)
 #cluster_originals(color_img, clusters)
+
+img = Image.open("images/tiger.jpg")
+img = img.convert('L')
+a = datetime.now()
+clusters = kmeans(img,2)
+b = datetime.now()
+print b-a
