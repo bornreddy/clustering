@@ -74,6 +74,7 @@ def recompute_reassign(clusters, img):
   return changed,clusters  
 
 def kmeans(k, img):
+  '''initial centroids'''
   centroids = random_rgb(k)
   print "got here"
   clusters = initial_assign(centroids,img)
@@ -85,10 +86,8 @@ def kmeans(k, img):
 def change_colors(dict,img):
   img = img.convert('RGB')
   color_index = 0
-  print cl.bwry
-  print dict.keys()
   for x in dict.keys():
-    color = cl.bwry[color_index]
+    color = cl.muted[color_index]
     for y in dict[x]:
       img.putpixel(y,color)
     color_index += 1
@@ -103,13 +102,11 @@ def print_pretty_dict(dict):
 def main():
   img = Image.open("images/tiger.jpg")
   a = datetime.datetime.now()
-  clusters = kmeans(2,img)
+  clusters = kmeans(8,img)
   b = datetime.datetime.now()
   print "kmeans time: ", b-a
-  c = datetime.datetime.now()
   change_colors(clusters, img)
-  d = datetime.datetime.now()
-  print "change_color time: ", d-c
+  print_pretty_dict(clusters)
   '''
   img = Image.open(sys.argv[1])
   img.show()
