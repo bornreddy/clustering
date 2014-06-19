@@ -5,6 +5,9 @@ import color as cl
 import os, sys
 import datetime 
 
+'''IMPORTANT!!!!!!! getting weird error in recompute_reassign - list remove says that p is not in clusters[c]. what's going on???'''
+
+
 '''return x unique random rgb tuples as a list'''
 def random_rgb(x):
   rand_tups = []
@@ -41,7 +44,8 @@ def initial_assign(centroids, img):
   return clusters 
 
 '''given a list of clusters and an image, compute the average color of each cluster and make that the new centroid; then change the pixels to fit their new clusters; return the new clusters and whether or not any single pixels have changed'''
-def recompute_reassign(clusters, img):
+
+def recenter(clusters, img):
   changed = False
   for c in clusters.keys():
     r, g, b = 0, 0, 0
@@ -57,26 +61,16 @@ def recompute_reassign(clusters, img):
     g /= num
     b /= num
     clusters[(r,g,b)] = clusters.pop(c)
+  return clusters
   '''reassign part here'''
-  for c in clusters.keys():
-    right_center = tuple()
-    for p in clusters[c]:
-      minDistance = 50000000
-      for l in clusters.keys():
-        distance = color_distance(l, img.getpixel((p[0],p[1])))
-        if (distance < minDistance):
-          minDistance = distance
-          right_center = l
-    if c != right_center:
-      changed = True
-      clusters[c].remove(p)
-      clusters[l].append(p)
+
+def reassign(clusters,img):
+  
   return changed,clusters  
 
 def kmeans(k, img):
   '''initial centroids'''
   centroids = random_rgb(k)
-  print "got here"
   clusters = initial_assign(centroids,img)
   changed = True
   while changed == True:
@@ -100,13 +94,21 @@ def print_pretty_dict(dict):
       print c
            
 def main():
-  img = Image.open("images/tiger.jpg")
+  img = Image.open("images/small.jpg")
   a = datetime.datetime.now()
+<<<<<<< Updated upstream
   clusters = kmeans(8,img)
   b = datetime.datetime.now()
   print "kmeans time: ", b-a
   change_colors(clusters, img)
   print_pretty_dict(clusters)
+=======
+  clusters = kmeans(3,img)
+  b = datetime.datetime.now()
+ # print "kmeans time: ", b-a
+  change_colors(clusters, img)
+
+>>>>>>> Stashed changes
   '''
   img = Image.open(sys.argv[1])
   img.show()
