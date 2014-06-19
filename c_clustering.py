@@ -53,8 +53,6 @@ def initial_assign(centroids, img):
       clusters[right_center].append((x,y))
   return clusters 
 
-'''given a list of clusters and an image, compute the average color of each cluster and make that the new centroid; then change the pixels to fit their new clusters; return the new clusters and whether or not any single pixels have changed'''
-
 def recenter(clusters, img):
   changed = False
   new_centers = []
@@ -74,20 +72,18 @@ def recenter(clusters, img):
     if (r,g,b) != c:
       changed = True
     new_centers.append((r,g,b))
-  print new_centers
-  return changed, new_centers
+    return changed, new_centers
 
 
 def reassign(centers,img):
   clusters = {}
   for c in centers:
     clusters[c] = []
-  changed = False
   for x in range(0,img.size[0]):
     for y in range(0,img.size[1]):
       color = img.getpixel((x,y))
       center = least_diff(color,centers)
-      clusters[c].append((x,y))
+      clusters[center].append((x,y))
   return clusters
 
 def kmeans(k, img):
