@@ -5,10 +5,6 @@ import color as cl
 import os, sys
 import datetime 
 
-'''IMPORTANT!!!!!!! getting weird error in recompute_reassign - list remove says that p is not in clusters[c]. what's going on???'''
-
-
-'''return x unique random rgb tuples as a list'''
 def random_rgb(x):
   rand_tups = []
   rs = random.sample(range(0,255),x)
@@ -18,7 +14,6 @@ def random_rgb(x):
     rand_tups.append((rs[i], bs[i], gs[i]))
   return rand_tups
 
-'''find the weighted euclidean distance between two colors'''
 def color_distance(rgb1,rgb2):
   r1, g1, b1 = rgb1[0], rgb1[1], rgb1[2]
   r2, g2, b2 = rgb2[0], rgb2[1], rgb2[2]
@@ -28,12 +23,13 @@ def color_distance(rgb1,rgb2):
 def least_diff(rgb,centers):
   minDistance = 50000000000
   x = tuple()
+  new_center = tuple()
   for x in centers:
     distance = color_distance(rgb,x)
     if distance < minDistance:
       minDistance = distance
-      newcenter = x
-  return x
+      new_center = x
+  return new_center
 
 def initial_assign(centroids, img):
   clusters = {}
@@ -55,6 +51,7 @@ def initial_assign(centroids, img):
 
 def recenter(clusters, img):
   changed = False
+  old_centers = clusters.keys()
   new_centers = []
   for c in clusters.keys():
     r, g, b = 0, 0, 0
@@ -72,19 +69,25 @@ def recenter(clusters, img):
     if (r,g,b) != c:
       changed = True
     new_centers.append((r,g,b))
-    return changed, new_centers
+  return changed, new_centers
 
+
+def print_pretty_dict(dict):
+  for x in dict.keys():
+    print x,": "
+    for c in dict[x]:
+      print c
 
 def reassign(centers,img):
-  clusters = {}
+  groups = {}
   for c in centers:
-    clusters[c] = []
+    groups[c] = []
   for x in range(0,img.size[0]):
     for y in range(0,img.size[1]):
       color = img.getpixel((x,y))
       center = least_diff(color,centers)
-      clusters[center].append((x,y))
-  return clusters
+      groups[center].append((x,y))
+  return groups
 
 def kmeans(k, img):
   '''initial centroids'''
@@ -115,7 +118,7 @@ def print_pretty_dict(dict):
 def main():
   img = Image.open("images/tiger.jpg")
   a = datetime.datetime.now()
-  clusters = kmeans(8,img)
+  clusters = kmeans(6,img)
   b = datetime.datetime.now()
   print "kmeans time: ", b-a
   change_colors(clusters, img)
