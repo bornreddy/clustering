@@ -25,6 +25,16 @@ def color_distance(rgb1,rgb2):
   d = ((r2-r1)*0.3)**2 + ((g2-g1)*0.59)**2 + ((b2-b1)*0.11)**2
   return d
 
+def least_diff(rgb,centers):
+  minDistance = 50000000000
+  x = tuple()
+  for x in centers:
+    distance = color_distance(rgb,x)
+    if distance < minDistance:
+      minDistance = distance
+      newcenter = x
+  return x
+
 def initial_assign(centroids, img):
   clusters = {}
   for c in centroids:
@@ -47,6 +57,7 @@ def initial_assign(centroids, img):
 
 def recenter(clusters, img):
   changed = False
+  new_centers = []
   for c in clusters.keys():
     r, g, b = 0, 0, 0
     num = len(clusters[c])
@@ -60,13 +71,24 @@ def recenter(clusters, img):
     r /= num
     g /= num
     b /= num
-    clusters[(r,g,b)] = clusters.pop(c)
-  return clusters
-  '''reassign part here'''
+    if (r,g,b) != c:
+      changed = True
+    new_centers.append((r,g,b))
+  print new_centers
+  return changed, new_centers
 
-def reassign(clusters,img):
-  
-  return changed,clusters  
+
+def reassign(centers,img):
+  clusters = {}
+  for c in centers:
+    clusters[c] = []
+  changed = False
+  for x in range(0,img.size[0]):
+    for y in range(0,img.size[1]):
+      color = img.getpixel((x,y))
+      center = least_diff(color,centers)
+      clusters[c].append((x,y))
+  return clusters
 
 def kmeans(k, img):
   '''initial centroids'''
@@ -74,7 +96,8 @@ def kmeans(k, img):
   clusters = initial_assign(centroids,img)
   changed = True
   while changed == True:
-    changed, clusters = recompute_reassign(clusters,img)
+    changed,centers = recenter(clusters,img)
+    clusters = reassign(centers,img)
   return clusters
 
 def change_colors(dict,img):
@@ -94,21 +117,12 @@ def print_pretty_dict(dict):
       print c
            
 def main():
-  img = Image.open("images/small.jpg")
+  img = Image.open("images/tiger.jpg")
   a = datetime.datetime.now()
-<<<<<<< Updated upstream
   clusters = kmeans(8,img)
   b = datetime.datetime.now()
   print "kmeans time: ", b-a
   change_colors(clusters, img)
-  print_pretty_dict(clusters)
-=======
-  clusters = kmeans(3,img)
-  b = datetime.datetime.now()
- # print "kmeans time: ", b-a
-  change_colors(clusters, img)
-
->>>>>>> Stashed changes
   '''
   img = Image.open(sys.argv[1])
   img.show()
