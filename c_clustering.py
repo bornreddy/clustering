@@ -5,6 +5,7 @@ import color as cl
 import os, sys
 import datetime 
 
+
 def random_rgb(x):
   rand_tups = []
   rs = random.sample(range(0,255),x)
@@ -45,12 +46,11 @@ def initial_assign(centroids, img):
         if (distance < minDistance):
           minDistance = distance
           right_center = c
-      '''add location of each pixel to the correct random centroid'''
       clusters[right_center].append((x,y))
   return clusters 
 
 def recenter(clusters, img):
-  changed = False
+  done = False
   old_centers = clusters.keys()
   new_centers = []
   for c in clusters.keys():
@@ -66,10 +66,10 @@ def recenter(clusters, img):
     r /= num
     g /= num
     b /= num
-    if (r,g,b) != c:
-      changed = True
     new_centers.append((r,g,b))
-  return changed, new_centers
+  if old_centers == new_centers:
+    done = True
+  return done, new_centers
 
 
 def print_pretty_dict(dict):
@@ -90,23 +90,28 @@ def reassign(centers,img):
   return groups
 
 def kmeans(k, img):
-  '''initial centroids'''
   centroids = random_rgb(k)
   clusters = initial_assign(centroids,img)
   changed = True
-  while changed == True:
-    changed,centers = recenter(clusters,img)
+  while True:
+    done, centers = recenter(clusters,img)
+    if done == True:
+      change_colors(clusters,img)
+      break
     clusters = reassign(centers,img)
   return clusters
 
 def change_colors(dict,img):
+  a = datetime.datetime.now()
   img = img.convert('RGB')
   color_index = 0
   for x in dict.keys():
-    color = cl.muted[color_index]
+    color = cl.neon[color_index]
     for y in dict[x]:
       img.putpixel(y,color)
     color_index += 1
+  b = datetime.datetime.now()
+  print "time of change_color: ", b-a
   img.show()
 
 def print_pretty_dict(dict):
@@ -116,12 +121,13 @@ def print_pretty_dict(dict):
       print c
            
 def main():
-  img = Image.open("images/tiger.jpg")
+  filename = raw_input("please enter an image to segment: ")
+  k = int(raw_input("please enter a k value: "))
+  img = Image.open(filename)
   a = datetime.datetime.now()
-  clusters = kmeans(6,img)
+  clusters = kmeans(k,img)
   b = datetime.datetime.now()
   print "kmeans time: ", b-a
-  change_colors(clusters, img)
   '''
   img = Image.open(sys.argv[1])
   img.show()
