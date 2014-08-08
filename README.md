@@ -8,5 +8,5 @@ Python implementations of clustering algorithms
 
 How to Use it
 ======
-Clone this repo on your machine, add run "python main.py <path_to_image>". This project works on JPG images. 
+Clone this repo on your machine, add run `python main.py <path_to_image>`. This project works on JPG images. 
 
